@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+
+
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <title>flv.js demo</title>
+    <link rel="stylesheet" type="text/css" href="demo.css" />
+    
+</head>
+
+<body>
+    
+    <div class="mainContainer">
+        <div class="video-container">
+            <div>
+                <video id="videoElement" class="centeredVideo"controls  autoplay>
+                    Your browser is too old which doesn't support HTML5 video.
+                </video>
+                <div class="progress">
+                	<span>
+                	</span>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="controls">
+            <button onclick="flv_load()">Load</button>
+            <button onclick="flv_start()">Start</button>
+            <button onclick="flv_pause()">Pause</button>
+            <button onclick="flv_destroy()">Destroy</button>
+            <input style="width:100px" type="text" name="seekpoint"/>
+            <button onclick="flv_seekto()">SeekTo</button>
+            <button onclick="flv_switch('640P')">640P</button>
+            <button onclick="flv_switch('160P')">160P</button>
+        </div>
+        <textarea name="logcatbox" class="logcatBox" rows="10" readonly></textarea>
+    </div>
+
+    <script src="flv.js"></script>
+    <script src="jquery-3.1.1.min.js"></script>
+    
+    <script>
+        var checkBoxFields = ['isLive', 'withCredentials', 'hasAudio', 'hasVideo'];
+        var streamURL, mediaSourceURL;
+        var flvPlayer;
+        
+        var filelist;
+				var jq = $.noConflict();
+				jq.ajax({
+					url:'1.data',
+					async:false,
+					cache:false,
+					success:function(data,status,jqXHR) {
+						filelist = JSON.parse(data);
+					}
+				});
+        
+        function print_time() {
+        	var videoElement = document.getElementById('videoElement');
+        	var buf = videoElement.buffered;
+        	if(buf.length > 0) {
+        		for(var i=0; i<buf.length; i++) {
+        			console.log('buf'+i+' '+buf.start(i)+' '+buf.end(i));
+        		}
+        		console.log(videoElement.currentTime);
+        	}
+        	else
+        		console.log(videoElement.currentTime);
+        }
+        function flv_load() {
+             if (flvjs.isSupported()) {
+				        var videoElement = document.getElementById('videoElement');
+				        flvPlayer = flvjs.createPlayer({
+				            type: 'flv',
+				            resolutions: filelist.resolutions
+				        });
+				        flvPlayer.attachMediaElement(videoElement);
+				        flvPlayer.load();
+				        
+				        setInterval(print_time, 1000);
+				    }
+        }
+
+
+        function flv_start() {
+            flvPlayer.play();
+        }
+
+        function flv_pause() {
+            flvPlayer.pause();
+        }
+
+        function flv_destroy() {
+            flvPlayer.pause();
+            flvPlayer.unload();
+            flvPlayer.detachMediaElement();
+            flvPlayer.destroy();
+            flvPlayer = null;
+        }
+        
+        function flv_seekto() {
+            var input = document.getElementsByName('seekpoint')[0];
+            flvPlayer.currentTime = parseFloat(input.value);
+        }
+        
+        function flv_switch(res) {
+        	
+        	var input = document.getElementsByName('logcatbox')[0];
+        	input.innerHTML = res;
+        	flvPlayer.switch(res);
+        }
+
+
+    </script>
+    
+</body>
+
+</html>
