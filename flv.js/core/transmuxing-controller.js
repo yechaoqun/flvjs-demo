@@ -268,6 +268,7 @@ class TransmuxingController {
                 if (res.level == resolution) {
                     this._mediaDataSource.segments = res.segments;
                     this._current_resolution = res.level;
+                    this._resolution_mediaInfo[this._current_resolution] = null;
                     
                     console.log(`switch to ${resolution}`);
                 }
